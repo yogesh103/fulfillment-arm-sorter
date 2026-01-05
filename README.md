@@ -1,93 +1,61 @@
 # Fulfillment Arm Sorter
 
-A basic Node.js TypeScript starter template.
+This repository contains a small TypeScript library that models a fulfillment-arm package sorter.
 
-## Features
+The project provides concise domain types and services to determine how packages should be routed into different stacks and to dispatch packages into stacks
 
-- ✅ TypeScript support with strict type checking
-- ✅ Modern ES2020+ syntax
-- ✅ Development mode with hot reload using Nodemon
-- ✅ Build scripts for production
-- ✅ Clean project structure
+---
 
-## Prerequisites
+## Rules / Business Logic
 
-- Node.js (v14 or higher)
-- npm or yarn
+Packages are classified using two boolean attributes:
 
-## Installation
+- Bulky
+  - A package is bulky when its volume (width × height × length) is >= 1,000,000 cm³ OR when any single dimension (width, height, length) is >= 150 cm.
+- Heavy
+  - A package is heavy when its mass is >= 20 kg.
+
+Dispatch rules:
+
+- REJECTED — package is both bulky and heavy
+- SPECIAL — package is bulky OR heavy (but not both)
+- STANDARD — package is neither bulky nor heavy
+
+These rules are implemented in `src/models/PackageItem.ts` and `src/services/PackageSorter.ts`.
+
+---
+
+## Key modules
+
+- `src/models/PackageItem.ts`
+  - Encapsulates the package dimensions and mass.
+  - Exposes `getVolume()`, `isBulky()` and `isHeavy()`.
+  - Thresholds are defined as static constants inside the class.
+
+- `src/models/Stack.ts`
+  - String enum with three values: `STANDARD`, `SPECIAL`, `REJECTED`.
+
+- `src/services/PackageSorter.ts`
+  - Pure utility that applies the business rules and returns the `Stack` a package should go to.
+
+- `src/services/PackageDispatcher.ts`
+  - Maintains three stacks (one per `Stack` enum value) and routes incoming packages into the correct stack using `PackageSorter`.
+
+---
+
+
+## Running tests
+
+This project uses Jest with `ts-jest` to run TypeScript tests. Tests live under `tests/`.
+
+Install dependencies:
 
 ```bash
 npm install
 ```
 
-## Usage
-
-### Development Mode
-
-Run the application in development mode with hot reload:
+Run tests:
 
 ```bash
-npm run dev
+npm test
 ```
-
-Or use watch mode:
-
-```bash
-npm run watch
-```
-
-### Build
-
-Compile TypeScript to JavaScript:
-
-```bash
-npm run build
-```
-
-### Production
-
-Build and run the compiled application:
-
-```bash
-npm run build
-npm start
-```
-
-## Project Structure
-
-```
-fulfillment-arm-sorter/
-├── src/
-│   └── index.ts          # Main application entry point
-├── dist/                 # Compiled JavaScript output (generated)
-├── node_modules/         # Dependencies (generated)
-├── .gitignore           # Git ignore rules
-├── nodemon.json         # Nodemon configuration
-├── package.json         # Project dependencies and scripts
-├── tsconfig.json        # TypeScript configuration
-└── README.md            # Project documentation
-```
-
-## Scripts
-
-- `npm run build` - Compile TypeScript to JavaScript
-- `npm start` - Run the compiled application
-- `npm run dev` - Run in development mode with ts-node
-- `npm run watch` - Run in watch mode with auto-reload
-- `npm run clean` - Remove compiled output
-- `npm run rebuild` - Clean and rebuild the project
-
-## Development
-
-This is a starter template. You can extend it by:
-
-1. Adding more source files in the `src/` directory
-2. Installing additional dependencies as needed
-3. Configuring ESLint and Prettier for code quality
-4. Adding test frameworks (Jest, Mocha, etc.)
-5. Setting up CI/CD pipelines
-
-## License
-
-ISC
